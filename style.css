@@ -1,0 +1,34 @@
+.clockwork-quest-app{display:flex;flex-direction:column;min-height:0;overflow:auto;padding:8px;background:#ece7da;color:#29251f}
+.clockwork-quest-view{display:flex;flex-direction:column;gap:8px;min-height:0;flex:1}
+.clockwork-quest-header,.clockwork-quest-toolbar,.clockwork-quest-save-fields{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.clockwork-quest-header{justify-content:space-between}
+.clockwork-quest-heading h2,.clockwork-quest-heading p{margin:0}
+.clockwork-quest-heading p{font-size:.86rem;color:#655b4e;margin-top:2px}
+.clockwork-quest-view button,.clockwork-quest-view select,.clockwork-quest-view input{min-height:40px}
+.clockwork-quest-layout{display:flex;flex:1 1 auto;gap:9px;min-height:420px}
+.clockwork-quest-stage{position:relative;flex:1 1 520px;min-height:420px;overflow:hidden;border:1px solid #746954;background:#121820;touch-action:none}
+.clockwork-quest-stage canvas{display:block;width:100%!important;height:100%!important;outline:none}
+.clockwork-quest-side{display:flex;flex:0 1 285px;flex-direction:column;gap:7px;min-width:220px;min-height:0;overflow:auto}
+.clockwork-quest-room-title{padding:9px;border:1px solid #9a8868;border-radius:7px;background:#fff6dd;font-weight:700}
+.clockwork-quest-inventory,.clockwork-quest-note{font-size:.84rem;line-height:1.35}
+.clockwork-quest-destinations,.clockwork-quest-move{display:flex;flex-wrap:wrap;gap:6px}
+.clockwork-quest-destinations button,.clockwork-quest-move button{flex:1 1 120px}
+.clockwork-quest-dialogue{padding:9px;border-left:4px solid #a57c35;background:#fffdf5;line-height:1.4}
+.clockwork-quest-dialogue p{margin:5px 0 0}
+.clockwork-quest-face{padding:7px 9px;border:1px dashed #8b744b;border-radius:7px;background:#f4ead0;font-size:.82rem}
+.clockwork-quest-status{padding:7px 9px;border-top:1px solid #b7a98d;background:#f8f4e9;font-size:.82rem}
+.clockwork-quest-warning{padding:7px 9px;border:1px solid #b27a15;background:#fff0c2;color:#573700;margin:0}
+.clockwork-quest-warning[hidden]{display:none}
+.clockwork-quest-details summary{cursor:pointer;min-height:34px;display:flex;align-items:center}
+.clockwork-quest-save-fields input{min-width:150px;flex:1}
+.clockwork-quest-view .reduced-motion *{scroll-behavior:auto!important}
+.clockwork-quest-view button:focus-visible,.clockwork-quest-view select:focus-visible,.clockwork-quest-view input:focus-visible,.clockwork-quest-stage canvas:focus-visible{outline:3px solid #315e9a;outline-offset:2px}
+@media(max-width:700px){
+ .clockwork-quest-app{padding:5px}
+ .clockwork-quest-layout{flex-direction:column}
+ .clockwork-quest-stage{flex-basis:360px;min-height:360px}
+ .clockwork-quest-side{min-width:0;overflow:auto}
+ .clockwork-quest-view button,.clockwork-quest-view select,.clockwork-quest-view input{min-height:44px}
+ .clockwork-quest-header{align-items:flex-start}
+ .clockwork-quest-toolbar button{flex:1 1 120px}
+}
