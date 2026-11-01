@@ -8,6 +8,9 @@ gated mechanism puzzles and rescue Pip.
 
 - Move between highlighted destinations with the destination buttons, pointer
   selection in the diorama, or WASD/arrow keys.
+- Right/D or Up/W moves forward along the path; Left/A or Down/S moves back.
+  Forward at an opened doorway enters the next room. Moving changes saved
+  progress and prompts before an unsaved window is closed.
 - Choose an available interaction and press **Interact**, or press E.
 - Escape or the Run/Pause button pauses the adventure. Movement and puzzle
   input require an explicit resume.
@@ -43,6 +46,13 @@ support. It uses the app-owned Babylon XR helper and preserves the same room
 and progress. Galaxy XR hardware entry, placement, comfort, in-world file
 actions and Rive texture behavior remain unverified.
 
+VR and AR support are checked asynchronously in that order; Exit XR requests
+the current session to end, and an externally ended session returns the button
+to Enter XR. Mock-session lifecycle tests cover entry, exit, external ending,
+entry interrupted by window close and failed exit. A browser test covers
+AR-only and unavailable support labels. This does not verify a real headset,
+tracking, placement, in-world controls or comfort.
+
 ## Development
 
 ```sh
@@ -67,3 +77,8 @@ CODI_PHONE=1 ... node tests/clockwork-quest-browser.test.mjs
 `tests/clockwork-quest-account.test.mjs` requires the parent integration branch
 and an isolated registered-account preview. Physical-phone, audible-audio,
 real-headset and complete production-art acceptance remain open.
+
+Local registered-account desktop and phone-sized viewport checks exercised
+keyboard movement and the unsaved-movement close guard, completed all six
+mechanisms, saved and synced the result, and reopened it in a fresh browser.
+These checks do not establish physical touch or XR behavior.

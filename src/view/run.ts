@@ -10,6 +10,7 @@ import type {Mesh} from "@babylonjs/core/Meshes/mesh.js";
 import {TransformNode} from "@babylonjs/core/Meshes/transformNode.js";
 import {Scene} from "@babylonjs/core/scene.js";
 import {SynthAudio} from "../audio/synth.js";
+import {XRController, supportedXRMode, type XRMode, type XRHelperLike} from "./xr-controls.js";
 import {
   ClockworkQuestSession,
   INTERACTIONS,
@@ -107,11 +108,14 @@ export async function startView(host: Host, signal: AbortSignal): Promise<ViewHa
   let watchSerial = 0;
   let watchCheck = 0;
   let last = performance.now();
-  let xrExperience: {
-    enterXRAsync?: (mode: string, space: string) => Promise<unknown>;
-    baseExperience?: {sessionManager?: {session?: {end?: () => Promise<void>}}};
-    dispose?: () => void;
-  } | null = null;
+  let xrMode: XRMode | null = null;
+  let xrBusy = false;
+  const xrController = new XRController(() => {
+    if (!valid()) return;
+    xrButton.textContent = "Enter XR";
+    xrButton.disabled = !xrMode;
+    announce("XR ended. Adventure remains paused.");
+  });
   const audio = new SynthAudio();
   const listening = new AbortController();
   const viewSignal = signal;
@@ -383,6 +387,8 @@ export async function startView(host: Host, signal: AbortSignal): Promise<ViewHa
     const result = session.moveTo(destination);
     announce(result.message);
     if (result.ok) {
+      setDirty(true);
+      revision++;
       audio.tone(260, 70, "sine");
       syncScene();
       refresh();
@@ -632,12 +638,17 @@ export async function startView(host: Host, signal: AbortSignal): Promise<ViewHa
       interact(interactionSelect.value as InteractionId);
       return;
     }
-    const keys: Record<string, number> = {w: -1, a: -1, ArrowLeft: -1, ArrowRight: 1, d: 1};
-    if (keys[event.key] !== undefined) {
+    const keys: Record<string, number> = {w: 1, s: -1, a: -1, d: 1, ArrowUp: 1, ArrowDown: -1, ArrowLeft: -1, ArrowRight: 1};
+    const direction = keys[event.key] ?? keys[event.key.toLowerCase()];
+    if (direction !== undefined) {
       event.preventDefault();
       const available = session.availableDestinations();
       const current = ROOMS[session.room].nodes.indexOf(session.node);
-      const destination = available[Math.max(0, Math.min(available.length - 1, current + keys[event.key]))];
+      const destination = available.find(item => {
+        if (item.startsWith("go:")) return direction > 0;
+        const index = ROOMS[session.room].nodes.indexOf(item);
+        return direction > 0 ? index > current : index >= 0 && index < current;
+      });
       if (destination) move(destination);
     }
   };
@@ -654,39 +665,38 @@ export async function startView(host: Host, signal: AbortSignal): Promise<ViewHa
   contrast.addEventListener("change", refresh);
 
   async function refreshXRSupport(): Promise<void> {
-    const xr = (navigator as Navigator & {xr?: {isSessionSupported(mode: string): Promise<boolean>}}).xr;
-    let supported = false;
-    try {
-      supported = !!xr && (await (xr.isSessionSupported("immersive-vr") || xr.isSessionSupported("immersive-ar")));
-    } catch {
-      supported = false;
-    }
-    if (valid()) {
-      xrButton.disabled = !supported;
-      xrButton.textContent = supported ? "Enter XR" : "XR unavailable";
+    const xr = (navigator as Navigator & {xr?: {isSessionSupported(mode: XRMode): Promise<boolean>}}).xr;
+    xrMode = await supportedXRMode(xr);
+    if (!disposed && !viewSignal.aborted) {
+      xrButton.disabled = !xrMode;
+      xrButton.textContent = xrMode ? "Enter XR" : "XR unavailable";
     }
   }
 
   async function enterXR(): Promise<void> {
-    if (!scene || busy || xrExperience) return;
-    session.pause();
-    refresh();
+    if (!scene || busy || xrBusy || !xrMode) return;
+    xrBusy = true;
+    xrButton.disabled = true;
     try {
-      const module = await import("@babylonjs/core/XR/webXRExperienceHelper.js") as {
-        WebXRExperienceHelper: {CreateAsync(scene: Scene): Promise<{
-          enterXRAsync(mode: string, space: string): Promise<{session?: {end?: () => Promise<void>}}>;
-          dispose?(): void;
-        }>};
-      };
-      xrExperience = await module.WebXRExperienceHelper.CreateAsync(scene);
-      await xrExperience.enterXRAsync?.("immersive-vr", "local-floor");
+      if (xrController.active) {
+        await xrController.exit();
+        return;
+      }
+      session.pause();
+      refresh();
+      const currentScene = scene;
+      await xrController.enter(xrMode, async () => {
+        const {WebXRExperienceHelper} = await import("@babylonjs/core/XR/webXRExperienceHelper.js");
+        return await WebXRExperienceHelper.CreateAsync(currentScene) as unknown as XRHelperLike;
+      });
+      if (!valid()) return;
       xrButton.textContent = "Exit XR";
-      xrButton.disabled = false;
-      announce("XR entered with the current room and progress. Adventure is paused; use Resume in the world controls.");
+      announce("XR entered with the current room and progress. Adventure is paused.");
     } catch (error) {
-      xrExperience?.dispose?.();
-      xrExperience = null;
-      announce("Could not enter XR: " + (error instanceof Error ? error.message : "unknown error"));
+      if (valid()) announce("Could not " + (xrController.active ? "exit" : "enter") + " XR: " + (error instanceof Error ? error.message : "unknown error"));
+    } finally {
+      xrBusy = false;
+      if (valid()) xrButton.disabled = !xrMode;
     }
   }
 
@@ -719,6 +729,7 @@ export async function startView(host: Host, signal: AbortSignal): Promise<ViewHa
       clearWatch();
       windowObserver.disconnect();
       element.removeEventListener("keydown", keyboard);
+      xrController.dispose();
       engine?.stopRenderLoop();
       scene?.dispose();
       engine?.dispose();
@@ -728,10 +739,6 @@ export async function startView(host: Host, signal: AbortSignal): Promise<ViewHa
       player = null;
       roomRoots = [];
       audio.dispose();
-      const sessionManager = xrExperience?.baseExperience?.sessionManager;
-      if (sessionManager?.session?.end) void sessionManager.session.end().catch(() => {});
-      xrExperience?.dispose?.();
-      xrExperience = null;
       canvas.remove();
       element.replaceChildren();
     },
