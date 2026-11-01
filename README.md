@@ -46,9 +46,9 @@ actions and Rive texture behavior remain unverified.
 ## Development
 
 ```sh
-npm ci --prefix apps/system/clockwork-quest --ignore-scripts
-npm run typecheck --prefix apps/system/clockwork-quest
-npm test --prefix apps/system/clockwork-quest
+npm ci --prefix apps/games/03-babylon-xr-games/clockwork-quest --ignore-scripts
+npm run typecheck --prefix apps/games/03-babylon-xr-games/clockwork-quest
+npm test --prefix apps/games/03-babylon-xr-games/clockwork-quest
 ```
 
 Build the isolated browser bundle with the standard app builder, copy
