@@ -693,18 +693,11 @@ export async function startView(host: Host, signal: AbortSignal): Promise<ViewHa
   try {
     await initializeScene();
     if (host.w?.launchContext?.storage === "mirror" && host.w.launchContext.owner === owner) {
-      path.value = host.w.launchContext.path;
-      queueMicrotask(() => {
-        const openWhenConnected = (attempt = 0) => {
-          if (disposed || !valid()) return;
-          if (!element.isConnected && attempt < 60) {
-            window.setTimeout(() => openWhenConnected(attempt + 1), 16);
-          } else {
-            void open(host.w?.launchContext?.path);
-          }
-        };
-        openWhenConnected();
-      });
+      const initialPath = host.w.launchContext.path;
+      path.value = initialPath;
+      window.setTimeout(() => {
+        if (valid()) void open(initialPath);
+      }, 0);
     }
   } catch (error) {
     announce("Could not start the clockwork world: " + (error instanceof Error ? error.message : "unknown error"));
