@@ -1,0 +1,47 @@
+HIGH-LEVEL GAMEPLAY PSEUDOCODE — Clockwork Quest
+Status: design only. Helpers and engine APIs must be implemented/qualified.
+
+INITIALIZE
+  construct app-owned rules/content state from a validated fresh seed or document
+  allocate only the selected engine's model/world; do not start a second preview model
+  load original assets and validate Rive names/types
+  install commands from CONTROLS.md; render a title and playable preview
+
+WHEN PLAY / RESUME
+  clear stale held input and timing debt
+  enter the active game phase; unlock audio only through a user gesture
+
+PER AUTHORITATIVE SIMULATION / RULE STEP
+  1. validate move/interact against current room graph
+  2. advance character navigation and puzzle state
+  3. project velocity into animation blending
+  4. resolve room/companion transitions
+  5. update dialogue and Rive faces from committed state
+
+PER PRESENTATION FRAME
+  read current committed model/world; interpolate views only where appropriate
+  derive Rive properties/triggers from committed state, then advance/draw once
+  upload dirty artboard textures only; render scene without stepping physics twice
+  leave menus responsive while paused without advancing game score or simulation
+
+SAVE / LOAD
+  Exact logical adventure state; animations are reconstructed from locomotion/dialogue state.
+  validate document off to the side; commit replacement only if complete and valid
+  cancel old input/jobs/callbacks; return to paused current game
+
+ENTER / EXIT XR
+  keep the SAME model/world; change camera/input/model-to-XR presentation only
+  restore original desktop presentation on end; retain current progress, then show Resume
+
+DISPOSE
+  reject future commands and late results; stop clocks/input/audio immediately
+  end only the owned/pending session and release GPU/engine after safe detachment
+  never destroy another app or a shared desktop service
+
+GAME-SPECIFIC EDGE CASES
+- Unreachable destination gets feedback without endless path retries.
+- Interaction cannot activate through a closed wall.
+- Room transition retains inventory exactly once.
+- Rive face is not treated as 3D skeletal animation.
+- Save during dialogue restores branch and speaker.
+- XR entry preserves current path/room and resumes only on confirmation.

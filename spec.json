@@ -1,0 +1,121 @@
+{
+  "category": "03-babylon-xr-games",
+  "id": "clockwork-quest",
+  "title": "Clockwork Quest",
+  "genre": "Small third-person adventure",
+  "pitch": "Guide an animated clockwork explorer through three tiny rooms, solve switch puzzles and rescue a trapped companion.",
+  "capabilities": [
+    "glTF character animation blending",
+    "Navigation and interaction state machines",
+    "Lighting, camera composition and Rive character face"
+  ],
+  "rules": [
+    "Tap/click destinations or use movement controls. Three rooms form a compact complete adventure with keys and switches.",
+    "Navigation uses authored walkable regions; no giant open world. A clear interact command is separate from move.",
+    "Companion rescue is the ending. No combat, inventory grinding or procedural quest generator."
+  ],
+  "content": "Three diorama rooms, six interactions, two path puzzles and one companion rescue sequence.",
+  "state": [
+    "room id",
+    "player logical position and goal",
+    "keys, switches and opened doors",
+    "companion state",
+    "hint/progress records"
+  ],
+  "actions": [
+    {
+      "command": "move",
+      "desktop": "WASD or click destination",
+      "phone": "Tap destination",
+      "xr": "Ray-select floor destination; player is the miniature character"
+    },
+    {
+      "command": "interact",
+      "desktop": "E / click labeled object",
+      "phone": "Context button",
+      "xr": "Select marked object then Interact"
+    },
+    {
+      "command": "view",
+      "desktop": "Orbit drag",
+      "phone": "Orbit gesture outside move taps",
+      "xr": "Natural view; optional recenter"
+    }
+  ],
+  "rive": {
+    "asset": "quest-faces.riv",
+    "role": "Expressive face textures on stylized characters plus dialogue cards; body locomotion stays Babylon/glTF.",
+    "properties": {
+      "mood": "enum neutral/happy/worried",
+      "speaking": "boolean",
+      "attentionX": "number -1..1"
+    },
+    "events": [
+      "blink",
+      "surprise",
+      "rescue"
+    ],
+    "states": [
+      "idle",
+      "listen",
+      "talk",
+      "cheer"
+    ],
+    "artboard": "Main",
+    "stateMachine": "Presentation",
+    "assetStatus": "to_author"
+  },
+  "polish": [
+    "Clear walkable boundaries and friendly path indicator",
+    "Body animation follows movement without controlling collision",
+    "Dialogue readable on phone and world panel in XR"
+  ],
+  "tests": [
+    "Unreachable destination gets feedback without endless path retries.",
+    "Interaction cannot activate through a closed wall.",
+    "Room transition retains inventory exactly once.",
+    "Rive face is not treated as 3D skeletal animation.",
+    "Save during dialogue restores branch and speaker.",
+    "XR entry preserves current path/room and resumes only on confirmation."
+  ],
+  "loop": [
+    "validate move/interact against current room graph",
+    "advance character navigation and puzzle state",
+    "project velocity into animation blending",
+    "resolve room/companion transitions",
+    "update dialogue and Rive faces from committed state"
+  ],
+  "save": "Exact logical adventure state; animations are reconstructed from locomotion/dialogue state.",
+  "wave": 4,
+  "xr_mode": "tabletop",
+  "xr_presentation": "The adventure becomes a spatial diorama with ray-to-move; AR placement or virtual VR stand.",
+  "comfort": "Player controls the character, never the headset camera. Every room remains reachable from a seated view.",
+  "specVersion": 1,
+  "status": "planned",
+  "implementation": "not_started",
+  "runtimeTests": "not_run",
+  "engine": "Babylon.js",
+  "singlePlayer": true,
+  "phoneRequired": true,
+  "mountContract": {
+    "export": "mount",
+    "synchronous": true,
+    "returns": [
+      "element",
+      "dispose"
+    ],
+    "productionEntry": "index.mjs",
+    "suppliedEntry": "index.pseudo.mjs"
+  },
+  "xrRequired": true,
+  "riveRequired": true,
+  "riveAssetIncluded": false,
+  "documentKind": "Exact logical adventure state; animations are reconstructed from locomotion/dialogue state.",
+  "sources": [
+    "S09",
+    "S10",
+    "S11",
+    "S12",
+    "S13"
+  ]
+}
