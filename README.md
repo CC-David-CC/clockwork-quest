@@ -1,47 +1,69 @@
 # Clockwork Quest
 
-**Small third-person adventure · Babylon.js · single-player · phone required · immersive XR required**
+Clockwork Quest is a small Babylon.js adventure preview for the Simplified
+desktop. Guide Tock through a workshop, clock hall and conservatory, solve two
+gated mechanism puzzles and rescue Pip.
 
-> Planned design, not implemented or browser-tested. `index.pseudo.mjs` is an explanatory entry point, not a playable game.
+## Play
 
-## Experience
+- Move between highlighted destinations with the destination buttons, pointer
+  selection in the diorama, or WASD/arrow keys.
+- Choose an available interaction and press **Interact**, or press E.
+- Escape or the Run/Pause button pauses the adventure. Movement and puzzle
+  input require an explicit resume.
+- The workshop path requires inspecting the gear and turning the crank.
+- The conservatory path requires aligning the minute and hour controls and
+  taking the mainspring.
+- Unlocking the rescue cage needs the brass key and mainspring and completes the
+  adventure.
 
-Guide an animated clockwork explorer through three tiny rooms, solve switch puzzles and rescue a trapped companion.
+Save and Open use the signed-in account's **My files**. Saves are versioned
+`.game.json` logical snapshots. They include the room, walkable node, inventory,
+doors, clock controls, companion state, current dialogue and play time. They
+exclude animation frames, geometry handles and XR poses. Loading starts paused.
+Changed files, conflicts, malformed input and sizes above 2 MiB are rejected
+without replacing the current adventure.
 
-## What this demonstrates
+## Presentation and lifecycle
 
-- glTF character animation blending
-- Navigation and interaction state machines
-- Lighting, camera composition and Rive character face
+The desktop view owns its Babylon engine, scene, camera, WebGL resources,
+animation loop, audio context, file subscription, input handlers and focus
+observers. Closing the view disposes only that instance. The game pauses when
+its desktop window loses focus, is hidden or rolled up, or when the browser
+loses visibility; resume is explicit.
 
-## Rules and complete loop
+Final glTF character bodies and animation clips are not available. The current
+explorer, companion cage and rooms are labeled procedural fallbacks. Final
+`quest-faces.riv` artwork is also pending. The implementation exposes model
+face mood, speaking, attention and presentation-state values so a reviewed Rive
+adapter can replace the fallback without changing game rules.
 
-- Tap/click destinations or use movement controls. Three rooms form a compact complete adventure with keys and switches.
-- Navigation uses authored walkable regions; no giant open world. A clear interact command is separate from move.
-- Companion rescue is the ending. No combat, inventory grinding or procedural quest generator.
+The optional XR button appears only when the browser reports immersive WebXR
+support. It uses the app-owned Babylon XR helper and preserves the same room
+and progress. Galaxy XR hardware entry, placement, comfort, in-world file
+actions and Rive texture behavior remain unverified.
 
-## Bounded polished release
+## Development
 
-Three diorama rooms, six interactions, two path puzzles and one companion rescue sequence.
+```sh
+npm ci --prefix apps/system/clockwork-quest --ignore-scripts
+npm run typecheck --prefix apps/system/clockwork-quest
+npm test --prefix apps/system/clockwork-quest
+```
 
-- Clear walkable boundaries and friendly path indicator
-- Body animation follows movement without controlling collision
-- Dialogue readable on phone and world panel in XR
+Build the isolated browser bundle with the standard app builder, copy
+`tests/clockwork-quest-fixture.html` into the bundle as `index.html`, and serve
+the bundle from a loopback-only HTTP server. Then run:
 
-No multiplayer, accounts, server simulation or generic editor is required. Start, rules/help, play/activity, pause, outcome/goal feedback and retry must all be complete. Settings include volume/mute, reduced motion, contrast and game-specific options where meaningful. State changes occur in the game model; animations illustrate them.
+```sh
+CODI_CLOCKWORK_QUEST_MANIFEST=.build/clockwork-quest-test/apps.json \
+CODI_CLOCKWORK_QUEST_URL=http://127.0.0.1:18364/ \
+CODI_TEST_CDP=http://127.0.0.1:19262 \
+node tests/clockwork-quest-browser.test.mjs
 
-## Rive inside this app
+CODI_PHONE=1 ... node tests/clockwork-quest-browser.test.mjs
+```
 
-Expressive face textures on stylized characters plus dialogue cards; body locomotion stays Babylon/glTF. The requested asset is `quest-faces.riv`; it is **not included**. See [RIVE.md](RIVE.md) for the authoring/integration contract. A placeholder or unrelated animated logo does not satisfy this requirement.
-
-## Save behavior
-
-Exact logical adventure state; animations are reconstructed from locomotion/dialogue state. See [SAVE.md](SAVE.md). Loading starts paused; resume is explicit. Entering/exiting XR preserves the live current state even when exported saves are checkpoints.
-
-## Build sequence
-
-Implement the rule loop in [gameplay.pseudo.txt](gameplay.pseudo.txt); bind the exact app lifecycle from [index.pseudo.mjs](index.pseudo.mjs); complete [CONTROLS.md](CONTROLS.md); author/integrate [RIVE.md](RIVE.md); then satisfy [ACCEPTANCE.md](ACCEPTANCE.md). The full XR flow and game-specific presentation are in [XR.md](XR.md).
-
-Target wave: **4**. Integrator first reads [AGENTS.md](../../AGENTS.md); do not guess host APIs from symbolic helper names.
-
-Use original/licensed artwork and audio. Keep the scope small enough to polish; expand content only after the release gates pass.
+`tests/clockwork-quest-account.test.mjs` requires the parent integration branch
+and an isolated registered-account preview. Physical-phone, audible-audio,
+real-headset and complete production-art acceptance remain open.
