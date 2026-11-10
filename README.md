@@ -82,3 +82,7 @@ Local registered-account desktop and phone-sized viewport checks exercised
 keyboard movement and the unsaved-movement close guard, completed all six
 mechanisms, saved and synced the result, and reopened it in a fresh browser.
 These checks do not establish physical touch or XR behavior.
+
+## Design requirements
+
+The original [design brief, controls, save rules, artwork and acceptance plans](design/README.md) are retained as reference. They describe targets; the implementation and qualification status above takes precedence.
