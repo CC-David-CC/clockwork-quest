@@ -302,6 +302,12 @@ export async function startView(host: Host, signal: AbortSignal): Promise<ViewHa
 
   async function initializeScene(): Promise<void> {
     engine = new Engine(canvas, true, {preserveDrawingBuffer: true, stencil: true});
+    if (typeof ResizeObserver !== 'undefined') {
+      const resizeObserver = new ResizeObserver(() => {
+        engine?.resize();
+      });
+      resizeObserver.observe(stage);
+    }
     scene = new Scene(engine);
     scene.clearColor = new Color4(0.07, 0.09, 0.12, 1);
     camera = new ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 3.1, 14, new Vector3(0, 1, 0), scene);

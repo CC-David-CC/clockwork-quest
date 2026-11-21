@@ -1,5 +1,5 @@
-import {describe, expect, it, vi} from 'vitest';
-import {supportedXRMode, XRController, type XRSessionLike} from '../src/view/xr-controls.js';
+import {describe, expect, it, vi} from './test-shim.ts';
+import {supportedXRMode, XRController, type XRSessionLike} from '../src/view/xr-controls.ts';
 function fakeSession(){let ended=()=>{};const session: XRSessionLike={addEventListener:(_type,fn)=>{ended=fn},end:vi.fn(async()=>{ended()})};return {session,endExternally:()=>ended()}}
 describe('XR lifecycle',()=>{
  it('awaits VR support and falls back to AR even if VR rejects',async()=>{expect(await supportedXRMode({isSessionSupported:async mode=>mode==='immersive-ar'})).toBe('immersive-ar');expect(await supportedXRMode({isSessionSupported:async mode=>{if(mode==='immersive-vr')throw Error();return true}})).toBe('immersive-ar');expect(await supportedXRMode({isSessionSupported:async()=>false})).toBeNull()});

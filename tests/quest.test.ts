@@ -1,10 +1,10 @@
-import {describe, expect, it} from "vitest";
+import {describe, expect, it} from "./test-shim.ts";
 import {
   ClockworkQuestSession,
   SaveError,
   decodeSave,
   encodeSave,
-} from "../src/model/quest.js";
+} from "../src/model/quest.ts";
 
 function playThrough(): ClockworkQuestSession {
   const session = new ClockworkQuestSession();

@@ -32,3 +32,66 @@
  .clockwork-quest-header{align-items:flex-start}
  .clockwork-quest-toolbar button{flex:1 1 120px}
 }
+
+
+/* Tier 1: Simplified Phone Display (< 768px) */
+@media (max-width: 768px) {
+  .clockwork-quest-app {
+    padding: 6px;
+    gap: 6px;
+  }
+  .clockwork-quest-layout {
+    flex-direction: column;
+  }
+  .clockwork-quest-stage {
+    min-height: 280px;
+    flex-basis: auto;
+  }
+  .clockwork-quest-side {
+    min-width: 100%;
+    width: 100%;
+  }
+  .clockwork-quest-view button,
+  .clockwork-quest-view select,
+  .clockwork-quest-view input {
+    min-height: 48px;
+  }
+}
+
+/* Tier 2: Full 1080p Desktop Display (1024px to 2559px) */
+@media (min-width: 1024px) and (max-width: 2559px) {
+  .clockwork-quest-stage {
+    min-height: 520px;
+  }
+  .clockwork-quest-side {
+    min-width: 300px;
+  }
+}
+
+/* Tier 3: Complete 4K UHD Display (>= 2560px) */
+@media (min-width: 2560px) {
+  .clockwork-quest-app {
+    padding: 20px;
+    gap: 16px;
+    font-size: 1.25rem;
+  }
+  .clockwork-quest-stage {
+    min-height: 840px;
+  }
+  .clockwork-quest-side {
+    min-width: 440px;
+  }
+  .clockwork-quest-view button,
+  .clockwork-quest-view select,
+  .clockwork-quest-view input {
+    min-height: 54px;
+    font-size: 1.2rem;
+    padding: 10px 18px;
+  }
+  .clockwork-quest-heading h2 {
+    font-size: 1.8rem;
+  }
+  .clockwork-quest-room-title {
+    font-size: 1.4rem;
+  }
+}

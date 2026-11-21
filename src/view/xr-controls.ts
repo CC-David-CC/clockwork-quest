@@ -19,7 +19,8 @@ export class XRController {
   private helper: XRHelperLike | null = null;
   private session: XRSessionLike | null = null;
   private disposed = false;
-  constructor(private onEnded: () => void) {}
+  private onEnded: () => void;
+  constructor(onEnded: () => void) { this.onEnded = onEnded; }
   get active(): boolean { return !!this.session; }
   async enter(mode: XRMode, create: () => Promise<XRHelperLike>): Promise<void> {
     if (this.disposed || this.helper) throw Error("XR is already starting or active.");
